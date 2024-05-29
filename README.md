@@ -1,2 +1,2 @@
 # langium-crmscript
-Language definition for CRMScript using 
+Language definition for CRMScript using Langium
