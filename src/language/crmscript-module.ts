@@ -1,8 +1,12 @@
-import { type Module, inject, DeepPartial, LangiumSharedCoreServices } from 'langium';
+import { type Module, inject, LangiumSharedCoreServices, DeepPartial } from 'langium';
 import { createDefaultModule, createDefaultSharedModule, type DefaultSharedModuleContext, type LangiumServices, type LangiumSharedServices, type PartialLangiumServices } from 'langium/lsp';
-import { CrmscriptGeneratedModule, CrmscriptGeneratedSharedModule } from './generated/module.js';
+import {
+    CrmscriptDefinitionGeneratedModule,
+    CrmscriptImplementationGeneratedModule,
+    CrmscriptGeneratedSharedModule
+} from './generated/module.js';
+
 import { CrmscriptValidator, registerValidationChecks } from './crmscript-validator.js';
-import { CrmscriptScopeProvider } from './crmscript-scope.js';
 import { CrmscriptWorkspaceManager } from './builtin/workspaceManager.js';
 
 export type CrmscriptSharedServices = LangiumSharedServices;
@@ -37,10 +41,10 @@ export type CrmscriptServices = LangiumServices & CrmscriptAddedServices
 export const CrmscriptModule: Module<CrmscriptServices, PartialLangiumServices & CrmscriptAddedServices> = {
     validation: {
         CrmscriptValidator: () => new CrmscriptValidator()
-    },
-    references: {
-        ScopeProvider: (services) => new CrmscriptScopeProvider(services),
     }
+    // references: {
+    //     ScopeProvider: (services) => new CrmscriptScopeProvider(services),
+    // }
 };
 
 /**
@@ -60,19 +64,27 @@ export const CrmscriptModule: Module<CrmscriptServices, PartialLangiumServices &
  */
 export function createCrmscriptServices(context: DefaultSharedModuleContext): {
     shared: LangiumSharedServices,
-    Crmscript: CrmscriptServices
+    Definition: CrmscriptServices,
+    Implementation: CrmscriptServices
 } {
     const shared = inject(
         createDefaultSharedModule(context),
         CrmscriptGeneratedSharedModule,
         CrmscriptSharedModule
     );
-    const Crmscript = inject(
+    const Definition = inject(
         createDefaultModule({ shared }),
-        CrmscriptGeneratedModule,
+        CrmscriptDefinitionGeneratedModule,
         CrmscriptModule
     );
-    shared.ServiceRegistry.register(Crmscript);
-    registerValidationChecks(Crmscript);
-    return { shared, Crmscript };
+    const Implementation = inject(
+        createDefaultModule({ shared }),
+        CrmscriptImplementationGeneratedModule,
+        CrmscriptModule
+    );
+    shared.ServiceRegistry.register(Definition);
+    shared.ServiceRegistry.register(Implementation);
+    registerValidationChecks(Definition);
+    registerValidationChecks(Implementation);
+    return { shared, Definition, Implementation };
 }

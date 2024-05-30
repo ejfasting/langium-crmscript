@@ -34,8 +34,10 @@ function startLanguageClient(context: vscode.ExtensionContext): LanguageClient {
 
     // Options to control the language client
     const clientOptions: LanguageClientOptions = {
-        documentSelector: [{ scheme: 'file', language: 'crmscript' }]
-    };
+        documentSelector: [
+            { scheme: 'file', language: 'crmscript-definition' },
+            { scheme: 'file', language: 'crmscript-implementation' }
+    ]};
 
     // Create the language client and start the client.
     const client = new LanguageClient(

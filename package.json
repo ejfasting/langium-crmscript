@@ -43,10 +43,18 @@
     "contributes": {
         "languages": [
             {
-                "id": "crmscript",
+                "id": "crmscript-definition",
                 "aliases": [
-                    "crmscript",
-                    "crmscript"
+                    "crmscript Definition",
+                    "crmscript-definition"
+                ],
+                "extensions": [".crmscript-definition"],
+                "configuration": "./language-configuration.json"
+            }, {
+                "id": "crmscript-implementation",
+                "aliases": [
+                    "crmscript Implementation",
+                    "crmscript-implementation"
                 ],
                 "extensions": [".crmscript"],
                 "configuration": "./language-configuration.json"
@@ -54,9 +62,14 @@
         ],
         "grammars": [
             {
-                "language": "crmscript",
-                "scopeName": "source.crmscript",
-                "path": "syntaxes/crmscript.tmLanguage.json"
+                "language": "crmscript-definition",
+                "scopeName": "source.crmscript-definition",
+                "path": "./syntaxes/crmscript-definition.tmLanguage.json"
+            },
+            {
+                "language": "crmscript-implementation",
+                "scopeName": "source.crmscript-implementation",
+                "path": "./syntaxes/crmscript-implementation.tmLanguage.json"
             }
         ]
     },

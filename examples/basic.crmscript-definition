@@ -1,0 +1,22 @@
+/** 
+# String
+
+Summary goes here.
+
+I just love **bold text**.
+
+```crmscript
+
+String something = "Hello";
+
+```
+
+*/
+class String {
+    String something;
+    String before(String variable){
+    };
+}
+
+
+
