@@ -1,6 +1,6 @@
 import { AstNode } from "langium";
-import { BinaryExpression, Class, isBinaryExpression, isBooleanExpression, isClass, isFieldMember, isFunctionDeclaration, isMemberCall, isMethodMember, isNilExpression, isIntegerExpression, isParameter, isPrintStatement, isReturnStatement, isStringExpression, isTypeReference, isUnaryExpression, isVariableDeclaration, MemberCall, TypeReference } from "../generated/ast.js";
-import { createBooleanType, createClassType, createErrorType, createFunctionType, createNilType, createNumberType, createStringType, createVoidType, isFunctionType, isStringType, TypeDescription } from "./descriptions.js";
+import { BinaryExpression, Class, isBinaryExpression, isBooleanExpression, isClass, isFieldMember, isFunctionDeclaration, isMemberCall, isMethodMember, isNilExpression, isIntegerExpression, isParameter, isPrintStatement, isReturnStatement, isStringExpression, isTypeReference, isUnaryExpression, isVariableDeclaration, MemberCall, TypeReference, Struct, isStruct } from "../generated/ast.js";
+import { createBooleanType, createClassType, createErrorType, createFunctionType, createNilType, createNumberType, createStringType, createStructType, createVoidType, isFunctionType, isStringType, TypeDescription } from "./descriptions.js";
 
 export function inferType(node: AstNode | undefined, cache: Map<AstNode, TypeDescription>): TypeDescription {
     let type: TypeDescription | undefined;
@@ -51,7 +51,10 @@ export function inferType(node: AstNode | undefined, cache: Map<AstNode, TypeDes
         type = inferType(node.type, cache);
     } else if (isClass(node)) {
         type = createClassType(node);
-    } else if (isBinaryExpression(node)) {
+    } else if (isStruct(node)) {
+        type = createStructType(node);
+    }
+    else if (isBinaryExpression(node)) {
         type = inferBinaryExpression(node, cache);
     } else if (isUnaryExpression(node)) {
         if (node.operator === '!') {
@@ -140,7 +143,17 @@ export function getClassChain(classItem: Class): Class[] {
     let value: Class | undefined = classItem;
     while (value && !set.has(value)) {
         set.add(value);
-        value = value.superClass?.ref;
+        //value = value.superClass?.ref;
+    }
+    // Sets preserve insertion order
+    return Array.from(set);
+}
+
+export function getStructChain(structItem: Struct): Struct[] {
+    const set = new Set<Struct>();
+    let value: Struct | undefined = structItem;
+    while (value && !set.has(value)) {
+        set.add(value);
     }
     // Sets preserve insertion order
     return Array.from(set);

@@ -1,5 +1,5 @@
 import { AstUtils, type AstNode, type ValidationAcceptor, type ValidationChecks } from 'langium';
-import { BinaryExpression, ExpressionBlock, FunctionDeclaration, MethodMember, TypeReference, UnaryExpression, VariableDeclaration, isReturnStatement, type Class, type CrmscriptAstType} from './generated/ast.js';
+import { BinaryExpression, ExpressionBlock, FunctionDeclaration, MethodMember, TypeReference, UnaryExpression, VariableDeclaration, isReturnStatement, type Class, type Struct, type CrmscriptAstType} from './generated/ast.js';
 import type { CrmscriptServices } from './crmscript-module.js';
 import { isAssignable } from './type-system/assignment.js';
 import { typeToString, TypeDescription, isVoidType } from './type-system/descriptions.js';
@@ -18,6 +18,7 @@ export function registerValidationChecks(services: CrmscriptServices) {
         VariableDeclaration: validator.checkVariableDeclaration,
         MethodMember: validator.checkMethodReturnType,
         Class: validator.checkClassDeclaration,
+        Struct: validator.checkStructDeclaration,
         FunctionDeclaration: validator.checkFunctionReturnType
     };
     registry.register(checks, validator);
@@ -42,6 +43,14 @@ export class CrmscriptValidator {
         //     node: declaration,
         //     property: 'name'
         // });
+    }
+
+    // TODO: implement structs
+    checkStructDeclaration(declaration: Struct, accept: ValidationAcceptor): void {
+        accept('info', 'Structs are great', {
+            node: declaration,
+            property: 'name'
+        });
     }
 
     private checkFunctionReturnTypeInternal(body: ExpressionBlock, returnType: TypeReference, accept: ValidationAcceptor): void {

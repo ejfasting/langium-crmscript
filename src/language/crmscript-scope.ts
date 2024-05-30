@@ -1,10 +1,10 @@
 import { AstUtils, DefaultScopeProvider, EMPTY_SCOPE, ReferenceInfo, Scope } from "langium";
-import { /*Class, isClass,*/ Class, MemberCall, isClass } from "./generated/ast.js";
+import { /*Class, isClass,*/ Class, MemberCall, StringExpression, Struct, isClass, isStruct } from "./generated/ast.js";
 //import { isClassType } from "./type-system/descriptions.js";
 //import { getClassChain, inferType } from "./type-system/infer.js";
 import { LangiumServices } from "langium/lsp";
-import { getClassChain, inferType } from "./type-system/infer.js";
-import { isClassType, isStringType } from "./type-system/descriptions.js";
+import { getClassChain, getStructChain, inferType } from "./type-system/infer.js";
+import { isClassType, isStringType, isStructType } from "./type-system/descriptions.js";
 
 export class CrmscriptScopeProvider extends DefaultScopeProvider {
 
@@ -17,6 +17,12 @@ export class CrmscriptScopeProvider extends DefaultScopeProvider {
         if (context.property === 'element') {     
             // for now, `this` and `super` simply target the container class type
             if (context.reference.$refText === 'this' || context.reference.$refText === 'super') {
+                /*Test */
+                const structItem = AstUtils.getContainerOfType(context.container, isStruct);
+                if (structItem) {
+                    console.log(structItem.members);
+                    return this.scopeStructMembers(structItem);
+                }
                 const classItem = AstUtils.getContainerOfType(context.container, isClass);
                 if (classItem) {
                     return this.scopeClassMembers(classItem);
@@ -33,8 +39,12 @@ export class CrmscriptScopeProvider extends DefaultScopeProvider {
             if (isClassType(previousType)) {
                 return this.scopeClassMembers(previousType.literal);
             }
+            if (isStructType(previousType)) {
+                return this.scopeStructMembers(previousType.literal);
+            }
+            //TODO: Implement variable scope
             if(isStringType(previousType)){
-                return this.scopeVariableMembers(previousType.$type);
+                return this.scopeVariableMembers(previousType.literal);
             }
             return EMPTY_SCOPE;
         }
@@ -46,7 +56,12 @@ export class CrmscriptScopeProvider extends DefaultScopeProvider {
         return this.createScopeForNodes(allMembers);
     }
 
-    private scopeVariableMembers(typeDescription: string): Scope {
+    private scopeStructMembers(structItem: Struct): Scope {
+        const allMembers = getStructChain(structItem).flatMap(e => e.members);
+        return this.createScopeForNodes(allMembers);
+    }
+
+    private scopeVariableMembers(typeDescription?: StringExpression): Scope {
         //const allMembers = this.getVariableChain(typeDescription).flatMap(e => e.members);
         //console.log(typeDescription.$type);
         return this.createScopeForNodes([]);

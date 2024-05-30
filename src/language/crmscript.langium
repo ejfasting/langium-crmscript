@@ -5,6 +5,7 @@ entry CrmscriptProgram:
 
 CrmscriptElement: 
     Class |
+    Struct ';' |
     ExpressionBlock | 
     IfStatement |
     WhileStatement |
@@ -16,6 +17,7 @@ CrmscriptElement:
     ReturnStatement ';' | 
     Expression ';'
 ;
+
 
 IfStatement: 
     'if' '(' condition=Expression ')' block=ExpressionBlock
@@ -141,8 +143,16 @@ FunctionDeclaration:
 Parameter: type=TypeReference name=ID
 ;
 
-//TODO: Need to remove the superClass from the class definition. But it breaks the validation so as long as its not mandatory it can stay for now.
-Class: 'class' name=ID ('<' superClass=[Class:ID])? '{'
+Struct: 
+    'struct' name=ID '{'
+    members+=StructMember*
+'}'
+;
+
+StructMember: MethodMember | FieldMember
+;
+
+Class: 'class' name=ID '{'
     members+=ClassMember*
 '}'
 ;
@@ -151,14 +161,11 @@ ClassMember: MethodMember | FieldMember
 ;
 
 MethodMember:
-    name=ID '(' (parameters+=Parameter (',' parameters+=Parameter)*)? ')' ':' returnType=TypeReference body=ExpressionBlock
+    returnType=TypeReference name=ID '(' (parameters+=Parameter (',' parameters+=Parameter)*)? ')' body=ExpressionBlock
 ;
 
-// FieldMember:
-//     name=ID ':' type=TypeReference;
-
 FieldMember:
-    type=TypeReference name=ID (assignment?='=' value=Expression)? ';'
+    type=TypeReference name=ID ';'
 ;
 
 //TODO: Add primities for Float, Generic and DateTime(?) => https://docs.superoffice.com/en/automation/crmscript/fundamentals/variables.html 
@@ -170,7 +177,7 @@ TypeReference: reference=[Class:ID]
 LambdaParameter: (name=ID ':')? type=TypeReference
 ;
 
-type NamedElement = Parameter | FunctionDeclaration | VariableDeclaration | MethodMember | FieldMember | Class
+type NamedElement = Parameter | FunctionDeclaration | VariableDeclaration | MethodMember | FieldMember | Class | Struct 
 ;
 
 hidden terminal WS: /\s+/;

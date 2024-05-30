@@ -4,7 +4,8 @@ import {
     BooleanExpression,
     Class,
     IntegerExpression,
-    StringExpression
+    StringExpression,
+    Struct
 } from "../generated/ast.js"
 
 export type TypeDescription =
@@ -15,6 +16,7 @@ export type TypeDescription =
     | NumberTypeDescription
     | FunctionTypeDescription
     | ClassTypeDescription
+    | StructTypeDescription
     | ErrorType;
 
 export interface NilTypeDescription {
@@ -130,6 +132,22 @@ export function createClassType(literal: Class): ClassTypeDescription {
 
 export function isClassType(item: TypeDescription): item is ClassTypeDescription {
     return item.$type === "class";
+}
+
+export interface StructTypeDescription {
+    readonly $type: "struct"
+    readonly literal: Struct
+}
+
+export function createStructType(literal: Struct): StructTypeDescription {
+    return {
+        $type: "struct",
+        literal
+    };
+}
+
+export function isStructType(item: TypeDescription): item is StructTypeDescription {
+    return item.$type === "struct";
 }
 
 export interface ErrorType {
