@@ -7,40 +7,40 @@ entry ImplementationUnit:
 
 CrmscriptElement:
     Builtin 
-    | IfStatement
-    | WhileStatement
-    | ForStatement
-    | TryCatchStatement
-    | FunctionDeclaration
+    // | IfStatement
+    // | WhileStatement
+    // | ForStatement
+    // | TryCatchStatement
+    // | FunctionDeclaration
     | VariableDeclaration ';'
-    | PrintStatement
-    | Expression ';'
+    // | PrintStatement
+    // | Expression ';'
 ;
 
 Builtin:
     class=([Class:ID]) name=ID;
 
-IfStatement:
-    'if' '(' condition=Expression ')' block=ExpressionBlock
-    ('else' elseBlock=ExpressionBlock)?
-;
+// IfStatement:
+//     'if' '(' condition=Expression ')' block=ExpressionBlock
+//     ('else' elseBlock=ExpressionBlock)?
+// ;
 
-WhileStatement:
-    'while' '(' condition=Expression ')' block=ExpressionBlock
-;
+// WhileStatement:
+//     'while' '(' condition=Expression ')' block=ExpressionBlock
+// ;
 
-ForStatement:
-    'for' '(' counter=VariableDeclaration? ';' condition=Expression ';' execution=Increment? ')' block=ExpressionBlock
-;
+// ForStatement:
+//     'for' '(' counter=VariableDeclaration? ';' condition=Expression ';' execution=Increment? ')' block=ExpressionBlock
+// ;
 
-Increment:
-    var=ID '++'
-;
+// Increment:
+//     var=ID '++'
+// ;
 
-TryCatchStatement:
-    'try' block=ExpressionBlock 'catch' '(' exception=ID ')' catchBlock=ExpressionBlock
-;
+// TryCatchStatement:
+//     'try' block=ExpressionBlock 'catch' '(' exception=ID ')' catchBlock=ExpressionBlock
+// ;
 
-PrintStatement:
-    'print' '(' value=Expression ')'
-;
+// PrintStatement:
+//     'print' '(' value=Expression ')'
+// ;

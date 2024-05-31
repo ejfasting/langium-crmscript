@@ -1,83 +1,63 @@
 grammar CrmscriptDefinition
 
 entry DefinitionUnit:
-    (elements+=Element)*;
+    elements+=Element*;
 
 Element: 
-    Class
-    | ExpressionBlock
-    | FunctionDeclaration
-    | VariableDeclaration ';'
-    | Expression ';'
-    | ReturnStatement ';'
+    Class |
+    ExpressionBlock | 
+    IfStatement |
+    WhileStatement |
+    ForStatement |
+    FunctionDeclaration |
+    VariableDeclaration ';' | 
+    PrintStatement ';' | 
+    ReturnStatement ';' | 
+    Expression ';'
 ;
 
-VariableDeclaration:
-    {infer VariableDeclaration} type=TypeReference name=ID (assignment?='=' value=Expression)?
+IfStatement: 
+    'if' '(' condition=Expression ')' block=ExpressionBlock
+    ('else' elseBlock=ExpressionBlock)?
 ;
 
-//Add other variable names to the name-property of the Class, to support Keywords as Identifiers => https://langium.org/docs/recipes/keywords-as-identifiers/
-Class: 'class' name=(ID | 'String') '{'
-    members+=ClassMember*
-'}'
+WhileStatement:
+    'while' '(' condition=Expression ')' block=ExpressionBlock
 ;
 
-ClassMember: MethodMember | FieldMember
+ForStatement:
+    'for' '(' counter=VariableDeclaration? ';' condition=Expression? ';' execution=Expression? ')' block=ExpressionBlock
 ;
 
-MethodMember:
-    returnType=TypeReference name=ID '(' (parameters+=Parameter (',' parameters+=Parameter)*)? ')' body=ExpressionBlock
-;
+PrintStatement: 'print' value=Expression;
 
-FieldMember:
-    type=TypeReference name=ID ';'
-;
-
-FunctionDeclaration:
-    returnType=TypeReference name=ID '(' (parameters+=Parameter (',' parameters+=Parameter)*)? ')' body=ExpressionBlock
-;
-
-TypeReference: 
-    reference=[Class:ID] 
-    | primitive=("String" | "Integer" | "Bool") 
-    | '(' ( parameters+=LambdaParameter (',' parameters+=LambdaParameter)*)? ')' '=>' returnType=TypeReference
-;
-
-//TODO: Remove this? It could be Parameter instead
-LambdaParameter: type=TypeReference (name=ID)? 
-;
-
-Parameter: type=TypeReference name=ID
-;
+ReturnStatement: 'return' value=Expression?;
 
 ExpressionBlock: '{'
-    (elements+=Element)*
-'}'
+    elements+=Element*
+'}';
+
+VariableDeclaration returns NamedElement:
+    {infer VariableDeclaration} type=[Class:ID] name=ID (assignment?='=' value=Expression)?
 ;
 
 Expression:
-    Assignment
-;
+    Assignment;
 
 Assignment infers Expression:
-    Addition ({infer BinaryExpression.left=current} operator=('=') right=Addition)*
-;
+    Addition ({infer BinaryExpression.left=current} operator=('=') right=Addition)*;
 
 Addition infers Expression:
-    Multiplication ({infer BinaryExpression.left=current} operator=('+' | '-') right=Multiplication)*
-;
+    Multiplication ({infer BinaryExpression.left=current} operator=('+' | '-') right=Multiplication)*;
 
 Multiplication infers Expression:
-    Logical ({infer BinaryExpression.left=current} operator=('*' | '/') right=Logical)*
-;
+    Logical ({infer BinaryExpression.left=current} operator=('*' | '/') right=Logical)*;
 
 Logical infers Expression:
-    Comparison ({infer BinaryExpression.left=current} operator=('and' | 'or') right=Comparison)*
-;
+    Comparison ({infer BinaryExpression.left=current} operator=('and' | 'or') right=Comparison)*;
 
 Comparison infers Expression:
-    MemberCall ({infer BinaryExpression.left=current} operator=('<' | '<=' | '>' | '>=' | '==' | '!=') right=MemberCall)*
-;
+    MemberCall ({infer BinaryExpression.left=current} operator=('<' | '<=' | '>' | '>=' | '==' | '!=') right=MemberCall)*;
 
 MemberCall infers Expression:
     Primary
@@ -96,8 +76,7 @@ MemberCall infers Expression:
 		    arguments+=Expression (',' arguments+=Expression)*
 		)?
 		')'))
-    )*
-;
+    )*;
 
 Primary infers Expression:
     '(' Expression ')' |
@@ -106,8 +85,7 @@ Primary infers Expression:
     BooleanExpression |
     IntegerExpression |
     NilExpression |
-    FeatureCall
-;
+    FeatureCall;
 
 FeatureCall infers Expression:
 	{infer MemberCall}
@@ -117,31 +95,37 @@ FeatureCall infers Expression:
 	(
 	    arguments+=Expression (',' arguments+=Expression)*
 	)?
-	')')?
-;
+	')')?;
 
 UnaryExpression:
    operator=('!' | '-' | '+') value=Expression
 ;
 
-IntegerExpression: value=NUMBER
-;
+IntegerExpression: value=NUMBER;
+StringExpression: value=STRING;
+BooleanExpression: value?='true' | 'false';
+NilExpression: value='nil';
 
-StringExpression: value=STRING
-;
+FunctionDeclaration:
+    'fun' name=ID '(' (parameters+=Parameter (',' parameters+=Parameter)*)? ')' ':' returnType=[Class:ID] body=ExpressionBlock;
 
-BooleanExpression: value?='true' | 'false'
-;
+Parameter: name=ID ':' type=[Class:ID];
 
-NilExpression: value='nil'
-;
+Class returns NamedElement: 
+    {infer Class} 'class' name=ID '{'
+    members+=ClassMember*
+'}';
 
-ReturnStatement:
-    'return' value=Expression?
-;
+ClassMember: MethodMember | FieldMember;
 
-type NamedElement = Parameter | FunctionDeclaration | VariableDeclaration | MethodMember | FieldMember | Class
-;
+MethodMember:
+    name=ID '(' (parameters+=Parameter (',' parameters+=Parameter)*)? ')' ':' returnType=[Class:ID] body=ExpressionBlock;
+
+FieldMember:
+    type=[Class:ID] name=ID;
+
+type NamedElement = Parameter | FunctionDeclaration | VariableDeclaration | MethodMember | FieldMember | Class;
+
 hidden terminal WS: /\s+/;
 terminal ID: /[_a-zA-Z][\w_]*/;
 terminal NUMBER returns number: /[0-9]+(\.[0-9]+)?/;
