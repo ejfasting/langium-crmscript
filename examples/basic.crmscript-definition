@@ -14,9 +14,15 @@ String something = "Hello";
 */
 class String {
     String something;
+    
+    /** Before stuff*/
     String before(String variable){
-    };
+        return "string";
+    }
 }
 
+String myFunction(){
+    return "string";
+}
 
 

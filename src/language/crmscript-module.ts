@@ -8,6 +8,7 @@ import {
 
 import { CrmscriptValidator, registerValidationChecks } from './crmscript-validator.js';
 import { CrmscriptWorkspaceManager } from './builtin/workspaceManager.js';
+import { CrmscriptScopeProvider } from './crmscript-scope.js';
 
 export type CrmscriptSharedServices = LangiumSharedServices;
 
@@ -41,10 +42,10 @@ export type CrmscriptServices = LangiumServices & CrmscriptAddedServices
 export const CrmscriptModule: Module<CrmscriptServices, PartialLangiumServices & CrmscriptAddedServices> = {
     validation: {
         CrmscriptValidator: () => new CrmscriptValidator()
+    },
+    references: {
+        ScopeProvider: (services) => new CrmscriptScopeProvider(services),
     }
-    // references: {
-    //     ScopeProvider: (services) => new CrmscriptScopeProvider(services),
-    // }
 };
 
 /**
