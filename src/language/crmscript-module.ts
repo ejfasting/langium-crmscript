@@ -71,7 +71,7 @@ export function createCrmscriptServices(context: DefaultSharedModuleContext): {
     const shared = inject(
         createDefaultSharedModule(context),
         CrmscriptGeneratedSharedModule,
-        CrmscriptSharedModule
+        //CrmscriptSharedModule
     );
     const Definition = inject(
         createDefaultModule({ shared }),

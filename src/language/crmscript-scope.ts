@@ -14,7 +14,7 @@ export class CrmscriptScopeProvider extends DefaultScopeProvider {
 
     override getScope(context: ReferenceInfo): Scope {
         // target element of member calls
-        if (context.property === 'element') {     
+        if (context.property === 'element') {   
             // for now, `this` and `super` simply target the container class type
             if (context.reference.$refText === 'this' || context.reference.$refText === 'super') {
                 const classItem = AstUtils.getContainerOfType(context.container, isClass);
@@ -45,8 +45,4 @@ export class CrmscriptScopeProvider extends DefaultScopeProvider {
         const allMembers = getClassChain(classItem).flatMap(e => e.members);
         return this.createScopeForNodes(allMembers);
     }
-
-    // private scopeVariableMembers(typeDescription?: StringExpression): Scope {
-    //     return this.createScopeForNodes([]);
-    // }
 }

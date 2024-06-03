@@ -46,9 +46,9 @@ export function inferType(node: AstNode | undefined, cache: Map<AstNode, TypeDes
             type = createErrorType('No type hint for this element', node);
         }
     } else if (isParameter(node)) {
-        //type = inferType(node.type, cache);
+        type = inferType(node, cache);
     } else if (isFieldMember(node)) {
-        //type = inferType(node.type, cache);
+        type = inferType(node.type.$nodeDescription?.node, cache);
     } else if (isClass(node)) {
         type = createClassType(node);
     } else if (isBinaryExpression(node)) {
@@ -79,6 +79,9 @@ export function inferType(node: AstNode | undefined, cache: Map<AstNode, TypeDes
 function inferMemberCall(node: MemberCall, cache: Map<AstNode, TypeDescription>): TypeDescription {
     const element = node.element?.ref;
     if (element) {
+        if(isVariableDeclaration(element)){
+            return inferType(element.type.$nodeDescription?.node, cache);
+        }
         return inferType(element, cache);
     } else if (node.explicitOperationCall && node.previous) {
         const previousType = inferType(node.previous, cache);
@@ -87,7 +90,7 @@ function inferMemberCall(node: MemberCall, cache: Map<AstNode, TypeDescription>)
         }
         return createErrorType('Cannot call operation on non-function type', node);
     }
-    return createErrorType('Could not infer type for element ' + node.element?.$refText ?? 'undefined', node);
+    return createErrorType('Could not infer type for element ' + node.element?.$refText, node);
 }
 
 function inferBinaryExpression(expr: BinaryExpression, cache: Map<AstNode, TypeDescription>): TypeDescription {

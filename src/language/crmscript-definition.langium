@@ -122,7 +122,7 @@ MethodMember:
     name=ID '(' (parameters+=Parameter (',' parameters+=Parameter)*)? ')' ':' returnType=[Class:ID] body=ExpressionBlock;
 
 FieldMember:
-    type=[Class:ID] name=ID;
+    type=[Class:ID] name=ID ';';
 
 type NamedElement = Parameter | FunctionDeclaration | VariableDeclaration | MethodMember | FieldMember | Class;
 
